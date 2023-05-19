@@ -10,3 +10,4 @@ storage:
   password: root
 jwt:
   secret: myNameMakarius1p_
+a: test
