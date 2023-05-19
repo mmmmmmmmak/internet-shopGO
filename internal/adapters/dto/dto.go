@@ -1,23 +1,29 @@
 package db_dto
 
 type CreateUserDTO struct {
-	ID           string `json:"id" bson:"_id,omitempty"`
-	Email        string `json:"email" bson:"email"`
-	Username     string `json:"username" bson:"username"`
-	PasswordHash string `json:"-" bson:"password"`
+	ID           string
+	Email        string
+	Username     string
+	PasswordHash string
 }
 
 type IsUserExists struct {
-	Email    string `json:"email" bson:"email"`
-	Username string `json:"username" bson:"username"`
+	Email    string
+	Username string
 }
 
 type AuthByEmail struct {
-	Email        string `json:"email" bson:"email"`
-	PasswordHash string `json:"-" bson:"password"`
+	Email        string
+	PasswordHash string
 }
 
 type AuthByUsername struct {
-	Username     string `json:"username" bson:"username"`
-	PasswordHash string `json:"-" bson:"password"`
+	Username     string
+	PasswordHash string
+}
+
+type AuthUser struct {
+	Email        string
+	Username     string
+	PasswordHash string
 }

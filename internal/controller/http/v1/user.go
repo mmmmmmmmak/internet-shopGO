@@ -3,8 +3,8 @@ package v1
 import (
 	"context"
 	"github.com/julienschmidt/httprouter"
+	"main/internal/apperror"
 	"main/internal/domain/usecase/user"
-	"main/pkg/apperror"
 	"main/pkg/logging"
 	"net/http"
 )
@@ -16,8 +16,7 @@ const (
 
 type UserUsecase interface {
 	CreateUser(ctx context.Context, dto user_usecase.CreateUserDTO) (string, error)
-	AuthByEmail(ctx context.Context, dto user_usecase.AuthByEmail) (string, error)
-	AuthByUsername(ctx context.Context, dto user_usecase.AuthByUsername) (string, error)
+	AuthUser(ctx context.Context, dto user_usecase.AuthUser) (string, error)
 }
 
 type userHandler struct {
