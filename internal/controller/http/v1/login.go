@@ -3,9 +3,9 @@ package v1
 import (
 	"encoding/json"
 	"github.com/asaskevich/govalidator"
+	"main/internal/apperror"
 	"main/internal/controller/http/dto"
 	user_usecase "main/internal/domain/usecase/user"
-	"main/pkg/apperror"
 	"net/http"
 )
 
@@ -43,36 +43,15 @@ func (h *userHandler) Auth(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	if d.Email == "" || !govalidator.IsEmail(d.Email) {
-		if d.Username == "" {
-			return apperror.NewAppError(nil, "username and email exists", "", "US-000008")
-		}
-		usecaseDTO := user_usecase.AuthByUsername{
-			Username: d.Username,
-			Password: d.Password,
-		}
-		user, err := h.userUsecase.AuthByUsername(r.Context(), usecaseDTO)
-		if err != nil {
-			// JSON RPC: TRANSPORT: 200, error: {msg, ..., dev_msg}
-			return err
-		}
-		w.WriteHeader(http.StatusOK)
-		response["jwt"] = user
-		jsonResponse, err := json.Marshal(response)
-		if err != nil {
-			return err
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonResponse)
-
-		return nil
+	if (d.Email == "" && d.Username == "") || (!govalidator.IsEmail(d.Email) && d.Username == "") {
+		return apperror.NewAppError(nil, "incorrect data entered", "", "US-000004")
 	}
-
-	usecaseDTO := user_usecase.AuthByEmail{
+	usecaseDTO := user_usecase.AuthUser{
 		Email:    d.Email,
+		Username: d.Username,
 		Password: d.Password,
 	}
-	user, err := h.userUsecase.AuthByEmail(r.Context(), usecaseDTO)
+	user, err := h.userUsecase.AuthUser(r.Context(), usecaseDTO)
 	if err != nil {
 		// JSON RPC: TRANSPORT: 200, error: {msg, ..., dev_msg}
 		return err
