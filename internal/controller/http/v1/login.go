@@ -29,7 +29,6 @@ func (h *userHandler) Registration(w http.ResponseWriter, r *http.Request) error
 		// JSON RPC: TRANSPORT: 200, error: {msg, ..., dev_msg}
 		return err
 	}
-	w.Header().Set("Authorization", "Bearer "+user)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(user))
 
@@ -37,6 +36,7 @@ func (h *userHandler) Registration(w http.ResponseWriter, r *http.Request) error
 }
 
 func (h *userHandler) Auth(w http.ResponseWriter, r *http.Request) error {
+	response := make(map[string]string)
 	var d dto.Auth
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
@@ -56,9 +56,14 @@ func (h *userHandler) Auth(w http.ResponseWriter, r *http.Request) error {
 			// JSON RPC: TRANSPORT: 200, error: {msg, ..., dev_msg}
 			return err
 		}
-		w.Header().Set("Authorization", "Bearer "+user)
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(user))
+		response["jwt"] = user
+		jsonResponse, err := json.Marshal(response)
+		if err != nil {
+			return err
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(jsonResponse)
 
 		return nil
 	}
@@ -72,9 +77,14 @@ func (h *userHandler) Auth(w http.ResponseWriter, r *http.Request) error {
 		// JSON RPC: TRANSPORT: 200, error: {msg, ..., dev_msg}
 		return err
 	}
-	w.Header().Set("Authorization", "Bearer "+user)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(user))
+	response["jwt"] = user
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonResponse)
 
 	return nil
 }
