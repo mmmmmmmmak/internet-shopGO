@@ -11,6 +11,7 @@ import (
 	user_usecase "main/internal/domain/usecase/user"
 	postgresql "main/pkg/client/postgresql"
 	"main/pkg/logging"
+	tokenManager2 "main/pkg/utils/tokenManager"
 	"net"
 	"net/http"
 	"os"
@@ -36,7 +37,8 @@ func main() {
 
 	storage := postgresql2.NewUserStorage(postgreClient)
 	userService := service.NewUserService(storage)
-	userUsecase := user_usecase.NewUserUsecase(userService)
+	tokenManager := tokenManager2.NewTokenManager(cfg.JWTConfig.Secret)
+	userUsecase := user_usecase.NewUserUsecase(userService, tokenManager)
 
 	logger.Info("register handlers")
 	handler := v1.NewUserHandler(userUsecase, logger)

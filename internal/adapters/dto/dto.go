@@ -5,15 +5,29 @@ type CreateUserDTO struct {
 	Email        string
 	Username     string
 	PasswordHash string
+	Session      Session
 }
 
-type IsUserExists struct {
+type Session struct {
+	RefreshToken string
+	ExpiresAt    int64
+}
+
+type IsUserExistsDTO struct {
 	Email    string
 	Username string
 }
 
-type AuthUser struct {
+type AuthUserDTO struct {
 	Email        string
 	Username     string
 	PasswordHash string
+}
+
+type GetUserDTO struct {
+	ID string
+}
+
+type GetUserByRefreshTokenDTO struct {
+	Token string
 }

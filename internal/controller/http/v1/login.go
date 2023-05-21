@@ -30,14 +30,18 @@ func (h *userHandler) Registration(w http.ResponseWriter, r *http.Request) error
 		return err
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(user))
+	jsonResponse, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonResponse)
 
 	return nil
 }
 
 func (h *userHandler) Auth(w http.ResponseWriter, r *http.Request) error {
-	response := make(map[string]string)
-	var d dto.Auth
+	var d dto.AuthDTO
 	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
 		return err
@@ -46,7 +50,7 @@ func (h *userHandler) Auth(w http.ResponseWriter, r *http.Request) error {
 	if (d.Email == "" && d.Username == "") || (!govalidator.IsEmail(d.Email) && d.Username == "") {
 		return apperror.NewAppError(nil, "incorrect data entered", "", "US-000004")
 	}
-	usecaseDTO := user_usecase.AuthUser{
+	usecaseDTO := user_usecase.AuthUserDTO{
 		Email:    d.Email,
 		Username: d.Username,
 		Password: d.Password,
@@ -57,8 +61,7 @@ func (h *userHandler) Auth(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	w.WriteHeader(http.StatusOK)
-	response["jwt"] = user
-	jsonResponse, err := json.Marshal(response)
+	jsonResponse, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
