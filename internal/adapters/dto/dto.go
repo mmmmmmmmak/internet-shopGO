@@ -12,16 +12,6 @@ type IsUserExists struct {
 	Username string
 }
 
-type AuthByEmail struct {
-	Email        string
-	PasswordHash string
-}
-
-type AuthByUsername struct {
-	Username     string
-	PasswordHash string
-}
-
 type AuthUser struct {
 	Email        string
 	Username     string
