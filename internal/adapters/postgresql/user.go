@@ -108,7 +108,6 @@ func (u *userStorage) GetUserByRefreshToken(ctx context.Context, user db_dto.Get
 	}
 	var id string
 	if err = u.client.QueryRow(ctx, sql, args...).Scan(&id); err != nil {
-		log.Println(sql, args)
 		if err == pgx.ErrNoRows {
 			return "", apperror.NewAppError(err, "invalid token", "", "TJ-000004")
 		}
