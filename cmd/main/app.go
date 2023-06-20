@@ -8,10 +8,11 @@ import (
 	"main/internal/config"
 	v1 "main/internal/controller/http/v1"
 	"main/internal/domain/service"
+	product_usecase "main/internal/domain/usecase/product"
 	user_usecase "main/internal/domain/usecase/user"
+	tokenManager2 "main/internal/tokenManager"
 	postgresql "main/pkg/client/postgresql"
 	"main/pkg/logging"
-	tokenManager2 "main/pkg/utils/tokenManager"
 	"net"
 	"net/http"
 	"os"
@@ -35,13 +36,19 @@ func main() {
 		panic(err)
 	}
 
-	storage := postgresql2.NewUserStorage(postgreClient)
-	userService := service.NewUserService(storage)
-	tokenManager := tokenManager2.NewTokenManager(cfg.JWTConfig.Secret)
+	userStorage := postgresql2.NewUserStorage(postgreClient)
+	userService := service.NewUserService(userStorage)
+	tokenManager := tokenManager2.NewTokenManager(cfg.JWTConfig.Secret, userStorage)
 	userUsecase := user_usecase.NewUserUsecase(userService, tokenManager)
 
+	productStorage := postgresql2.NewProductStorage(postgreClient)
+	productService := service.NewProductService(productStorage)
+	productUsecase := product_usecase.NewProductUsecase(productService, tokenManager)
+
 	logger.Info("register handlers")
-	handler := v1.NewUserHandler(userUsecase, logger)
+	handler := v1.NewUserHandler(userUsecase, tokenManager, logger)
+	productHandler := v1.NewProductHandler(productUsecase, tokenManager, logger)
+	productHandler.Register(router)
 	handler.Register(router)
 
 	start(router, cfg, logger)

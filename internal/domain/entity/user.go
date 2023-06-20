@@ -5,6 +5,7 @@ type User struct {
 	Email        string  `json:"email" bson:"email"`
 	Username     string  `json:"username" bson:"username"`
 	PasswordHash string  `json:"-" bson:"password"`
+	IsSeller     bool    `json:"is_seller" bson:"is_seller"`
 	Session      Session `json:"session" bson:"session"`
 }
 

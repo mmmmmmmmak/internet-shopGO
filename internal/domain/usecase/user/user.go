@@ -16,13 +16,13 @@ import (
 type Service interface {
 	Create(ctx context.Context, dto db_dto.CreateUserDTO) (string, error)
 	IsUserCreated(ctx context.Context, user db_dto.IsUserExistsDTO) (bool, error)
-	AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (string, error)
+	AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (ReturnUser, error)
 	GetUser(ctx context.Context, user db_dto.GetUserDTO) (entity.User, error)
-	GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (string, error)
+	GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (ReturnUser, error)
 }
 
 type TokenManager interface {
-	GenerateAccessToken(userID string) (string, error)
+	GenerateAccessToken(userID string, isSeller bool) (string, error)
 	GenerateRefreshToken() (string, error)
 	TokenUser(accessToken string) (string, error)
 	TokenExpires(accessToken string) (int64, error)
@@ -81,7 +81,7 @@ func (u userUsecase) CreateUser(ctx context.Context, dto CreateUserDTO) (Tokens,
 		return tokens, apperror.NewAppError(err, "failed to create user", "", "US-000007")
 	}
 
-	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(userID)
+	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(userID, false)
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "unknown error", "failed to create jwt token", "TJ-000001")
 	}
@@ -96,12 +96,12 @@ func (u userUsecase) AuthUser(ctx context.Context, dto AuthUserDTO) (Tokens, err
 		Username:     dto.Username,
 		PasswordHash: passwordHash,
 	}
-	userID, err := u.userService.AuthUser(ctx, userDTO)
+	user, err := u.userService.AuthUser(ctx, userDTO)
 	if err != nil {
 		return tokens, err
 	}
 
-	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(userID)
+	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(user.UserID, user.IsSeller)
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "unknown error", "failed to create jwt token", "TJ-000001")
 	}
@@ -140,11 +140,11 @@ func (u userUsecase) RefreshToken(ctx context.Context, dto RefreshTokenDTO) (Tok
 	userDTO := db_dto.GetUserByRefreshTokenDTO{
 		Token: dto.Token,
 	}
-	userID, err := u.userService.GetUserByRefreshToken(ctx, userDTO)
+	user, err := u.userService.GetUserByRefreshToken(ctx, userDTO)
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "refresh token error", "", "US-000005")
 	}
-	token, err := u.tokenManager.GenerateAccessToken(userID)
+	token, err := u.tokenManager.GenerateAccessToken(user.UserID, user.IsSeller)
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "unknown error", "failed to create jwt token", "TJ-000001")
 	}

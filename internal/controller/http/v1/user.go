@@ -26,14 +26,16 @@ type UserUsecase interface {
 }
 
 type userHandler struct {
-	userUsecase UserUsecase
-	logger      *logging.Logger
+	userUsecase  UserUsecase
+	tokenManager TokenManager
+	logger       *logging.Logger
 }
 
-func NewUserHandler(userUsecase UserUsecase, logger *logging.Logger) *userHandler {
+func NewUserHandler(userUsecase UserUsecase, tokenManager TokenManager, logger *logging.Logger) *userHandler {
 	return &userHandler{
-		userUsecase: userUsecase,
-		logger:      logger,
+		userUsecase:  userUsecase,
+		tokenManager: tokenManager,
+		logger:       logger,
 	}
 }
 

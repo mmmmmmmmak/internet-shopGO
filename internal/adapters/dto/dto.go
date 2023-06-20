@@ -31,3 +31,10 @@ type GetUserDTO struct {
 type GetUserByRefreshTokenDTO struct {
 	Token string
 }
+
+type CreateProductDTO struct {
+	Name        string
+	Description string
+	Price       float64
+	Seller      string
+}

@@ -24,3 +24,8 @@ type GetUserDTO struct {
 type RefreshTokenDTO struct {
 	Token string `json:"refreshToken" bson:"refreshToken"`
 }
+
+type ReturnUser struct {
+	UserID   string `json:"user_id" bson:"user_id"`
+	IsSeller bool   `json:"is_seller" bson:"is_seller"`
+}
