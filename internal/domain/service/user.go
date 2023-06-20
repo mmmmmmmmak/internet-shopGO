@@ -4,15 +4,14 @@ import (
 	"context"
 	"main/internal/adapters/dto"
 	"main/internal/domain/entity"
-	user_usecase "main/internal/domain/usecase/user"
 )
 
 type UserStorage interface {
 	Create(ctx context.Context, user db_dto.CreateUserDTO) (string, error)
 	IsUserCreated(ctx context.Context, user db_dto.IsUserExistsDTO) (bool, error)
-	AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (user_usecase.ReturnUser, error)
+	AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (string, error)
 	GetUser(ctx context.Context, user db_dto.GetUserDTO) (entity.User, error)
-	GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (user_usecase.ReturnUser, error)
+	GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (string, error)
 	Update(ctx context.Context, user entity.User) error
 	Delete(ctx context.Context, id string) error
 }
@@ -33,7 +32,7 @@ func (s userService) IsUserCreated(ctx context.Context, user db_dto.IsUserExists
 	return s.storage.IsUserCreated(ctx, user)
 }
 
-func (s userService) AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (user_usecase.ReturnUser, error) {
+func (s userService) AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (string, error) {
 	return s.storage.AuthUser(ctx, user)
 }
 
@@ -41,6 +40,6 @@ func (s userService) GetUser(ctx context.Context, user db_dto.GetUserDTO) (entit
 	return s.storage.GetUser(ctx, user)
 }
 
-func (s userService) GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (user_usecase.ReturnUser, error) {
+func (s userService) GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (string, error) {
 	return s.storage.GetUserByRefreshToken(ctx, user)
 }

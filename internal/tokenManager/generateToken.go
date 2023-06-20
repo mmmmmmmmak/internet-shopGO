@@ -17,7 +17,7 @@ type tokenManager struct {
 	storage    UserStorage
 }
 
-func (t *tokenManager) GenerateAccessToken(userID string, isSeller bool) (string, error) {
+func (t *tokenManager) GenerateAccessToken(userID string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["exp"] = time.Now().Add(1 * time.Hour).Unix()

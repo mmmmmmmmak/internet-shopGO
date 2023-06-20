@@ -16,13 +16,13 @@ import (
 type Service interface {
 	Create(ctx context.Context, dto db_dto.CreateUserDTO) (string, error)
 	IsUserCreated(ctx context.Context, user db_dto.IsUserExistsDTO) (bool, error)
-	AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (ReturnUser, error)
+	AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (string, error)
 	GetUser(ctx context.Context, user db_dto.GetUserDTO) (entity.User, error)
-	GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (ReturnUser, error)
+	GetUserByRefreshToken(ctx context.Context, user db_dto.GetUserByRefreshTokenDTO) (string, error)
 }
 
 type TokenManager interface {
-	GenerateAccessToken(userID string, isSeller bool) (string, error)
+	GenerateAccessToken(userID string) (string, error)
 	GenerateRefreshToken() (string, error)
 	TokenUser(accessToken string) (string, error)
 	TokenExpires(accessToken string) (int64, error)
@@ -81,7 +81,7 @@ func (u userUsecase) CreateUser(ctx context.Context, dto CreateUserDTO) (Tokens,
 		return tokens, apperror.NewAppError(err, "failed to create user", "", "US-000007")
 	}
 
-	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(userID, false)
+	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(userID)
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "unknown error", "failed to create jwt token", "TJ-000001")
 	}
@@ -101,7 +101,7 @@ func (u userUsecase) AuthUser(ctx context.Context, dto AuthUserDTO) (Tokens, err
 		return tokens, err
 	}
 
-	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(user.UserID, user.IsSeller)
+	tokens.AccessToken, err = u.tokenManager.GenerateAccessToken(user)
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "unknown error", "failed to create jwt token", "TJ-000001")
 	}
@@ -144,7 +144,7 @@ func (u userUsecase) RefreshToken(ctx context.Context, dto RefreshTokenDTO) (Tok
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "refresh token error", "", "US-000005")
 	}
-	token, err := u.tokenManager.GenerateAccessToken(user.UserID, user.IsSeller)
+	token, err := u.tokenManager.GenerateAccessToken(user)
 	if err != nil {
 		return tokens, apperror.NewAppError(err, "unknown error", "failed to create jwt token", "TJ-000001")
 	}

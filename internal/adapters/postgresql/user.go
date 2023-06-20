@@ -6,7 +6,6 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
-	"log"
 	db_dto "main/internal/adapters/dto"
 	"main/internal/apperror"
 	"main/internal/domain/entity"
@@ -83,11 +82,11 @@ func (u *userStorage) AuthUser(ctx context.Context, user db_dto.AuthUserDTO) (st
 
 func (u *userStorage) GetUser(ctx context.Context, user db_dto.GetUserDTO) (entity.User, error) {
 	var userReturn entity.User
-	sql, args, err := sq.Select("id", "username", "email", "session").From(User).Where("id = $1", user.ID).ToSql()
+	sql, args, err := sq.Select("id", "username", "email", "session", "is_seller").From(User).Where("id = $1", user.ID).ToSql()
 	if err != nil {
 		return userReturn, apperror.NewAppError(err, "incorrect data entered", err.Error(), "US-000004")
 	}
-	if err = u.client.QueryRow(ctx, sql, args...).Scan(&userReturn.ID, &userReturn.Username, &userReturn.Email, &userReturn.Session); err != nil {
+	if err = u.client.QueryRow(ctx, sql, args...).Scan(&userReturn.ID, &userReturn.Username, &userReturn.Email, &userReturn.Session, &userReturn.IsSeller); err != nil {
 		if err == pgx.ErrNoRows {
 			return userReturn, apperror.NewAppError(err, "invalid token", "", "TJ-000004")
 		}
